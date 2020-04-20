@@ -14,7 +14,7 @@ Topic 5: How does the container work (TBD)
 
 Topic 6: Virtual Machine (TBD)
 
-Topic 7: Docker security (TBD)
+Topic 7: [Container security](SECURITY.md)
 
 # References:
 - [Container Security: Fundamental Technology Concepts that Protect Containerized Applications](https://www.amazon.com/Container-Security-Fundamental-Containerized-Applications/dp/1492056707)
