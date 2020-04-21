@@ -2,10 +2,10 @@
 - Namespaces are a feature of the Linux kernel that partitions kernel resources such that one set of processes sees one set of resources while another set of processes sees a different set of resources.
 - There are many types of namespace: 
     - Mount (mnt)
-    - Process ID (pid)
-    - Network (net)
+    - [Process ID (pid)](#isolate-the-ProcessID)
+    - [Network (net)](#isolate-the-network)
     - Interprocess Communication (ipc)
-    - UNIX Timesharing System (uts)
+    - [UNIX Timesharing System (uts)](#isolate-the-hostname)
     - User ID (user)
     - Control group (cgroup) : available from March 2016 in Linux 4.6.
     - Time: available from March 2020 in Linux 5.6. [[ref]](https://lwn.net/Articles/779104/)
@@ -31,7 +31,7 @@ $ lsns
 
 Examples will go through the `unshare` command to show how does the `unshare` can be used to isolate namespaces from the parent.
 
-### Isolate the Hostname:
+### Isolate the Hostname
 Allow a single system to appear to have different host and domain names to different processes.
 
 Running `unshare` command with the `--uts` flag.
@@ -57,7 +57,7 @@ hqt@localhost:~$ hostname
 localhost
 ```
 
-### Isolate the ProcessID:
+### Isolate the ProcessID
 - Provide processes with an independent set of process IDs from other namespaces.
 - Can be nested
 - Running `unshare` command with the `--pid` flag.
@@ -134,7 +134,7 @@ hqt@localhost:~/alpine$ tar xvf alpine.tar.gz
 hqt@localhost:~/alpine$ cd ..
 ```
 
-After we set up the environment, we will change the new root path into the new alpine directory and run the `unshare` command from this:
+After we all set up the environment, we will change the new root path into the new alpine directory and run the `unshare` command from this:
 ```console
 hqt@localhost:~$ sudo unshare --pid --fork chroot alpine sh
 $
@@ -152,8 +152,10 @@ PID   USER     TIME  COMMAND
     6 root      0:00 ps
 ```
 
-So the steps will be:
+To summarize, the steps will be:
 - Setup the new file system included basic command lines such as sh / mount / ...
 - Start the new process ID namespace with the command `unshare`
-- Change the root into this by using the command `chroot`
+- Change the root into the new created file system by using the command `chroot`
 - Change the mount point by using the command `mount`
+
+### Isolate the Network
