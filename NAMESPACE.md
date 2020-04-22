@@ -6,7 +6,7 @@
     - [Network (net)](#isolate-the-network)
     - Interprocess Communication (ipc)
     - [UNIX Timesharing System (uts)](#isolate-the-hostname)
-    - User ID (user)
+    - [User ID (user)](#isolate-the-user)
     - Control group (cgroup) : available from March 2016 in Linux 4.6.
     - Time: available from March 2020 in Linux 5.6. [[ref]](https://lwn.net/Articles/779104/)
 - Some namespaces can be nested.
@@ -157,5 +157,58 @@ To summarize, the steps will be:
 - Start the new process ID namespace with the command `unshare`
 - Change the root into the new created file system by using the command `chroot`
 - Change the mount point by using the command `mount`
+
+### Isolate the User
+- Provide both user and privilege isolation and user across multiple sets of processes 
+- Running `unshare` command with the `--user` flag.
+
+```console
+hqt@localhost:~$ unshare --user bash
+nobody@localhost:~$ 
+
+nobody@localhost:~$ id
+uid=65534(nobody) gid=65534(nogroup) groups=65534(nogroup)
+
+# get the current process
+nobody@localhost:~$ echo $$
+19255
+
+# get all linux capacities
+nobody@localhost:~$ capsh --print | grep Current
+Current: =
+```
+
+We can map from the host's user id to the namespace's user id
+# <img src="images/user_namespace_mapping.png" height="256"/>
+
+The mapping exists in `/proc/<pid>/uid_map`. So we try to map with the following command:
+
+```bash
+# mapping user namespace's root (id = 0)  to the host  user and only map 1
+sudo echo '0 [host_user_id] 1' > /proc/[namespace_process_id]/uid_map
+```
+
+On the host terminal, assuming the running user is "1000", the user namespace's process is 19255:
+```console
+hqt@localhost:~$ echo '0 1000 1' > /proc/19255/uid_map 
+```
+On the user namespace's terminal:
+```console
+nobody@localhost:~$ id
+uid=0(root) gid=65534(nogroup) groups=65534(nogroup)
+
+# There are more capacities
+nobody@localhost:~$ capsh --print | grep Current
+# list of capacties
+```
+
+When we create a process with multiple namespaces, the user namespace will be created first.
+```console
+hqt@localhost:~$ unshare --uts sh
+unshare: unshare failed: Operation not permitted
+
+hqt@localhost:~$ unshare --uts --user sh
+$ 
+```
 
 ### Isolate the Network

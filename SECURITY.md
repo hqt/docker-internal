@@ -33,6 +33,8 @@ root      5957  5907  0 21:09 pts/0    00:00:00 sleep 1000
 By this example, we see that:
 - Containers run as root, even when initiated by non-root user, which is a form of privilege escalation.
 - If an attacker can escape a container which is run as root, they will have the full root access to the host.
+- Sometimes, there are issues on Linux that attackers can escalate privileges that we need to minimize the surface attack as minimum as possible. 
+[Linux issue: bypass access controls on resources outside the namespace](https://nvd.nist.gov/vuln/detail/CVE-2018-18955)
 
 ## Solutions
 There are many solutions to avoid running a container as root.
@@ -87,8 +89,9 @@ hqt@b09d2761ac74:/$
 - [Why non root containers are important for security](https://engineering.bitnami.com/articles/why-non-root-containers-are-important-for-security.html)
 
 ### Solution 2: Run containers in different user namespace.
+Creating a separate `user namespace` to isolate containers.
 
-### Solution 3: Rootless container
+### Solution 3: Using rootless container
 - The Docker daemon runs as the root user which is exposed surfaces to some types of attack. [Docker daemon attack surface](https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface)
 - Rootless containers make use of the **user namespace**, which allows a normal non-root user ID on the host can be mapped to root inside the container.
 - Libraries / implementations: [[Podman]](https://podman.io/) [[runc]](http://runc.io/) [[Rootless Docker]](https://medium.com/@tonistiigi/experimenting-with-rootless-docker-416c9ad8c0d6) [[Kubernetes rootless]](https://github.com/rootless-containers/usernetes)
