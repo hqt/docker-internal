@@ -4,7 +4,7 @@
     - Mount (mnt)
     - [Process ID (pid)](#isolate-the-ProcessID)
     - [Network (net)](#isolate-the-network)
-    - Interprocess Communication (ipc)
+    - [Interprocess Communication (ipc)](#isolate-ipc-inter-process-communication)
     - [UNIX Timesharing System (uts)](#isolate-the-hostname)
     - [User ID (user)](#isolate-the-user)
     - Control group (cgroup) : available from March 2016 in Linux 4.6.
@@ -212,3 +212,48 @@ $
 ```
 
 ### Isolate the Network
+
+### Isolate IPC (Inter-process communication)
+- Isolate processes from inter-process communication. This prevents processes in different IPC namespaces from using, for example, the SHM family of functions to establish a range of shared memory between the two processes.
+- Running `unshare` command with the `--ipc` flag.
+
+We try to create a shared memory between processes:
+
+```console
+hqt@localhost:~$ ipcmk -M 1000
+Shared memory id: 131076
+
+# list all IPC 
+hqt@localhost:~$ ipcs 
+
+------ Message Queues --------
+key        msqid      owner      perms      used-bytes   messages    
+
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status      
+0x6f6b5eff 0          root       644        1000       0                       
+0x9fac1d32 98307      hqt        644        1000       0                       
+0xd7776bc8 131076     hqt        644        1000       0                       
+
+------ Semaphore Arrays --------
+key        semid      owner      perms      nsems     
+```
+
+We create a new IPC namespace. In this namespace, we cannot see any other IPCs have been created before in the host environment.
+
+```console
+hqt@localhost:~$ sudo unshare --ipc sh
+$
+
+
+# there are no shared memory when we run the ipcs command
+$ ipcs
+------ Message Queues --------
+key        msqid      owner      perms      used-bytes   messages    
+
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status      
+
+------ Semaphore Arrays --------
+key        semid      owner      perms      nsems     
+```
